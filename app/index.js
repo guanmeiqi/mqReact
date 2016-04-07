@@ -12,9 +12,7 @@ import Button from './components/Button/Button';
         )
     }
 });*/
-
 //ES6
-/*
  class HelloWorld extends Component {
  //class HelloWorld extends React.Component {
  render(){
@@ -24,6 +22,7 @@ import Button from './components/Button/Button';
  }
  }
 
- ReactDOM.render(<HelloWorld />, document.getElementById('app'));*/
+ ReactDOM.render(<HelloWorld />, document.getElementById('app'));
+/*
 let root = document.getElementById('app');
-ReactDOM.render( <Button />, root );
+ReactDOM.render( <Button />, root );*/

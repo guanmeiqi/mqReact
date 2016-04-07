@@ -7,13 +7,13 @@ module.exports = {
      path.resolve(__dirname, 'app/index.js')
      ],*/
     //react-hot-loader
-    entry: [
-        //'webpack/hot/dev-server',
+    /*entry: [
+        'webpack/hot/dev-server',
         'webpack-dev-server/client?http://localhost:8080',
         path.resolve(__dirname, 'app/index.js')
-    ],
+    ],*/
     //最基本的
-    //entry: path.resolve(__dirname, 'app/index.js'),
+    entry: path.resolve(__dirname, 'app/index.js'),
     output: {
         path: path.resolve(__dirname, 'public'),
         filename: 'bundle.js'
