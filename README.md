@@ -6,7 +6,9 @@
 4. 基本命令行环境
 
 ## 创建项目
+
 ### webpack初应用
+
 ```sh
     //创建my-react文件到这个目录下
     $ mkdir my-react && cd my-react
@@ -17,14 +19,18 @@
     //初始化项目,生成package.json文件,管理项目中的依赖
     $ npm init
 ```
+
 * 忽略掉不想管里的文件配置.gitignore
+
 ```
     node_modules
     .idea
     .protect
     *.log*
 ```
-* 把app目录下的js文件编译到public下，用html文件引用
+
+* * 把app目录下的js文件编译到public下，用html文件引用
+
 ```
 //创建工程目录
     $ mkdir app public && cd app
@@ -36,11 +42,15 @@
     $ touch webpack.config.js
 //给项目添加基本代码 
 ```
+
 * app/index.js   
+
 ```js
 alert("hello world!");
 ```
+
 * public/index.html
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -54,6 +64,7 @@ alert("hello world!");
 </body>
 </html>
 ```
+
 * webpack.config.js
 
 ```js
@@ -69,8 +80,11 @@ module.exports = {
 ```
 
 * webpack打包模块化
-^ 应用场景：1.多路由gulp+webpack  2.单页应用
+
+* * 应用场景：1.多路由gulp+webpack  2.单页应用
+
 - 1.安装webpack
+
 ```
 //全局安装webpack和webpack-dev-server,方便使用命令行
  $ npm install webpack webpack-dev-server -g
@@ -78,10 +92,13 @@ module.exports = {
 //为项目安装依赖，后续需要require使用相关的API
  $ npm install webpack webpack-dev-server --save-dev
 ```
+
 - 2.命令行学习webpack
+
 ```
  $ webpack --help
 ``` 
+
 - 3.配置文件webpack.config.js介绍
 
 ```js
@@ -121,9 +138,11 @@ module.exports = {
 ```
 
 * 启动服务看效果：
+
 ```
  $ webpack-dev-server --progress --colors --content-base public
 ```
+
 //通常可以把这行命令配置到 package.json文件的script里面去
 
 ```js
@@ -161,21 +180,27 @@ module.exports = {
     }
 ```
 
+* 启动项目
+
 ```
  $ npm run dev
 ```
-* 通过localhost:8080访问可弹出hello world！
-### React+ES6初应用  
-* app/index.js
-//代码react版 hello world！
 
-```
+* 通过localhost:8080访问可弹出hello world！
+
+### React+ES6初应用  
+
+* app/index.js
+
+* * react代码版 hello world！
+
+```js
     'use strict';
       //ES6
     import React, { Component } from 'react';
     //import React from 'react';
     import ReactDOM from 'react-dom';
-    /*
+   
      class HelloWorld extends Component {
      //class HelloWorld extends React.Component {
      render(){
@@ -192,20 +217,24 @@ module.exports = {
                  )
              }
          });*/
-     ReactDOM.render(<HelloWorld />, document.getElementById('app'));*/
+     ReactDOM.render(<HelloWorld />, document.getElementById('app'));
 ```
+
 * 安装react和react-dom
 
-```
+```sh
 $ npm install react react-dom --save
 ```
+
 * 安装babel解析ES6和jsx
-```
+
+```sh
 $ npm install babel-loader babel-core --save-dev
 ```
+
 * 添加webpack配置到webpack.config.js 
 
-```
+```js
 var path = require('path');
 
 module.exports = {
@@ -226,12 +255,16 @@ module.exports = {
     }
 };
 ```
+
 * babel如何解析
-```
+
+```sh
 //生成babel配置文件(my-react目录下)
  $ touch .babelrc  
 ```
+
 * 配置文件.babelrc
+
 ```js
     {
     //设置预设
@@ -239,14 +272,438 @@ module.exports = {
       "plugins": []
     }
 ```
+
 //配置的preset字段是在为babel解析做预设，告诉babel需要使用相关的预设插件来解析代码，plugins字段，顾名思义，就是用来配置使用babel相关的插件的，这里暂且按下不表。
+
 * 使用三个预设需要下载安装
-```
+
+```sh
 $ npm install --save-dev babel-preset-es2015 babel-preset-react babel-preset-stage-0
 // 其中stage-0预设是用来说明解析ES7其中一个阶段语法提案的转码规则
 ```
+
 * React+ES6初应用设置完毕可以启动服务查看
+
+```sh
+$ npm run dev
+```
+
+* 浏览器访问localhost:8080，页面内容显示hello world！
+
+### 深入学习webpack
+
+1. 实现代码热替换
+更新webpack.config.js入口文件配置即可实现编辑器中保存代码就可在浏览器中实现刷新的效果
+
+* webpack.config.js
+
+```js
+entry: [
+      'webpack-dev-server/client?http://localhost:8080',
+      path.resolve(__dirname, 'app/index.js')
+]
+```
+
+2. 使用react-hot-loader实现组件级的hot reload
+  （当有多个组件的时候，修改哪个run哪个）
+  
+* 安装react-hot-loader
+
+```sh
+$ npm install --save-dev react-hot-loader
+```
+
+* webpack.config.js
+
+```js
+var path = require('path');
+//插入组件需要引入webpack
+var webpack = require('webpack');
+
+module.exports = {
+    entry: [
+      'webpack/hot/dev-server',
+      'webpack-dev-server/client?http://localhost:8080',
+      path.resolve(__dirname, 'app/index.js')
+    ],
+    output: {
+        path: path.resolve(__dirname, 'public'),
+        filename: 'bundle.js',
+    },
+    module: {
+      loaders: [
+        {
+          test: /\.js$/,
+          loaders: ['react-hot', 'babel'],
+          exclude: path.resolve(__dirname, 'node_modules')
+        }
+      ]
+    },
+    plugins: [
+      new webpack.HotModuleReplacementPlugin(),
+      new webpack.NoErrorsPlugin()
+    ]
+};
+//这里新增了react-hot-loader去解析React组件，同时加上了热替换的插件HotModuleReplacementPlugin和防止报错的插件NoErrorsPlugin，如果这里不用HotModuleReplacementPlugin这个插件也可以，只需要在webpack-dev-server运行的时候加上--hot这个参数即可，都是一样的。
+```
+
+3. 加载解析样式文件
+
+* 安装...loader
+
+```sh
+$ npm install --save-dev style-loader css-loader less-loader
+```
+
+* webpack.config.js
+
+```js
+loaders: [
+            {
+                test: /\.js$/,
+                loaders: ['react-hot', 'babel'],
+                exclude: path.resolve(__dirname, 'node_modules')
+            },
+            //实际项目中loader: 'style!css？....'后面会有很多参数
+            {
+                test: /\.css/,
+                loader: 'style!css'
+            },
+            {
+                test: /\.less/,
+                loader: 'style!css!less'
+            }
+        ]
+```
+
+* * 测试：在app目录新增一个基本的React组件，然后在index.js中引用这个组件
+
+```sh
+//新增一个目录components并且在目录下新建一个Button组件（建议开头大写）
+$ cd app && mkdir components
+$ cd components && mkdir Button
+$ cd Button && touch Button.js Button.less
+```
+
+* app/components/Button.js
+
+```js
+import React, { Component } from 'react';
+import './Button.less';
+
+class Button extends Component {
+    handleClick(){
+        alert('戳我干嘛！');
+    }
+    render(){
+        //const style = require('./Button.less');
+
+        return (
+        //以跑通项目为主，不建议this.handleClick.bind(this)写
+            <button className="my-button" onClick={this.handleClick.bind(this)}>
+                快戳我
+            </button>
+        );
+    }
+}
+
+export default Button;
+```
+
+* app/components/Button.less
+
+```
+.my-button {
+  color: #fff;
+  background-color: #2db7f5;
+  border-color: #2db7f5;
+  padding: 4px 15px 5px 15px;
+  font-size: 14px;
+  border-radius: 6px;
+}
+```
+
+* 浏览器访问localhost:8080，页面内容显示button按钮，点击提示弹窗
+
+* css文件的引入，解析，运行已经跑通，样式会以style的形式放在head里面
+//上面例子目前css文件全部被打包在bundle.js一个文件里，代码量多需要性能优化
+
+4. css文件单独加载
+
+* 安装extract-text-webpack-plugin
+
+```
+$ npm install extract-text-webpack-plugin --save-dev
+
+```
+
+* require 引入，配置webpack.config.js
+
+```
+var path = require('path');
+var webpack = require('webpack');
+
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
+
+module.exports = {
+    entry: [
+      'webpack/hot/dev-server',
+      'webpack-dev-server/client?http://localhost:8080',
+      path.resolve(__dirname, 'app/index.js')
+    ],
+    output: {
+        path: path.resolve(__dirname, 'public'),
+        filename: 'bundle.js',
+    },
+    resolve: {
+      extension: ['', '.js', '.jsx', '.json']
+    },
+    module: {
+      loaders: [
+        {
+          test: /\.js$/,
+          loaders: ['react-hot', 'babel'],
+          exclude: path.resolve(__dirname, 'node_modules')
+        },
+        {
+          test: /\.css/,
+          loader: ExtractTextPlugin.extract("style-loader", "css-loader")
+        },
+        {
+          test: /\.less/,
+          loader: ExtractTextPlugin.extract("style-loader", "css-loader!less-loader")
+        }
+      ]
+    },
+    plugins: [
+      new webpack.HotModuleReplacementPlugin(),
+      new webpack.NoErrorsPlugin(),
+      new ExtractTextPlugin("bundle.css")
+    ]
+};
+```
+
+* public/index.html(index.html去引入bundle.css文件)
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>React Demo</title>
+    <link rel="stylesheet" href="bundle.css">
+</head>
+<body>
+<div id="app"></div>
+<script src="./bundle.js"></script>
+</body>
+</html>
+```
+
+* 单独加载css文件配置完毕
+
 ```
 $ npm run dev
 ```
-* 浏览器访问localhost:8080，页面内容显示hello world！
+
+* 浏览器访问localhost:8080，页面内容显示button按钮，点击提示弹窗
+//此时样式是通过外链link引入到head中
+
+5. 图片资源加载
+
+* 安装url-loader
+
+```
+$ npm install --save-dev url-loader
+```
+
+* webpack.config.js
+
+```js
+loaders: [
+  {
+  //匹配了png和jpg两种格式的图片
+    test: /\.(png|jpg)$/,
+    loader: 'url-loader?limit=8192'
+  }
+]
+//设置了limit参数值是8192，意思是匹配到小于8K（8 * 2014=8192）的图片时将其进行base64转化后放入文件中，大于8k的图片则进行单独加载。
+```
+
+* * 测试：新建一个container目录用于存放容器级（可以粗略的理解为页面级）组件，新建一个static目录用于存放图片、图标字体、音频视频等资源，我们下载两张图片放入用于后续的代码引用
+
+```sh
+$ cd app && mkdir container static
+$ cd container && touch App.js App.less
+```
+
+* 调整index.js中代码，将index.js只加载App容器组件，App加载组件Button
+
+* app/index.js
+
+```
+'use strict';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './container/App';
+
+let root = document.getElementById('app');
+ReactDOM.render( <App />, root );
+```
+
+* app/container/App.js
+
+```js
+import React, { Component } from 'react';
+import Button from '../components/Button/Button';
+
+import './App.less';
+
+class App extends Component {
+  render(){
+    return (
+      <div className="app">
+        <Button />
+        <div className="tip"></div>
+      </div>
+    );
+  }
+}
+
+export default App;
+```
+
+* app/container/App.less
+
+```less
+.app {
+  width: 200px;
+  height: 300px;
+  // 这是一张19K的jpg图片
+  background-image: url(../static/a.jpg);
+  position: relative;
+  }
+  .tip {
+    width: 100px;
+    height: 80px;
+    // 这是一张2k的png图片
+    background-image: url(../static/d.jpg);
+    position: absolute;
+    right: -100px;
+  }
+```
+
+* 图片配置完毕
+
+```
+$ npm run dev
+```
+
+* 浏览器访问localhost:8080,正常展示后看控制台的信息，2k的图片被base64，19k的图片正常加载
+
+6. 图标字体的加载
+
+* 可选file-loader 或 url-loader 进行加载，配置如下（示例配置，在项目中最好还是按实际情况配置）
+
+```js
+{
+  test: /\.(woff|woff2|ttf|svg|eot)(\?v=\d+\.\d+\.\d+)?$/,
+  loader: "url?limit=10000"
+}
+```
+
+* * 更多loader可以参考webpack wiki  https://github.com/webpack/docs/wiki/list-of-loaders
+
+* * 测试:下载bootstrap，它给我们提供了整套的css并且还有优秀的图标字体库。
+
+```sh
+$ npm install bootstrap --save
+```
+
+* app/container/App.js  在App.js里面应用bootstrap
+
+```js
+import React, { Component } from 'react';
+import Button from '../components/Button/Button';
+
+//引入bootstrap
+import 'bootstrap/dist/css/bootstrap.css';
+import './App.less';
+
+class App extends Component {
+  render(){
+    return (
+      <div className="text-center">
+        <Button />
+        <div className="tip"></div>
+        {/* 这里我们使用以下图标字体 */}
+        <span className="glyphicon glyphicon-asterisk"></span>
+      </div>
+    );
+  }
+}
+
+export default App;
+```
+
+* bootstrap配置完毕
+
+```
+$ npm run dev
+```
+
+* 浏览器访问localhost:8080，显示图标
+
+7. 将js文件的应用和第三方分开打包
+
+* webpack.config.js 修改webpack配置中的entry入口，并添加CommonsChunkPlugin插件抽取出第三方资源
+
+```js
+entry: {
+ index: [
+    'webpack/hot/dev-server',
+    'webpack-dev-server/client?http://localhost:8080',
+    path.resolve(__dirname, 'app/index.js')
+  ],
+  vendor: ['react', 'react-dom']
+},
+plugins: [
+   new webpack.HotModuleReplacementPlugin(),
+   new webpack.NoErrorsPlugin(),
+   new webpack.optimize.CommonsChunkPlugin('vendor', 'vendor.js'),
+   new ExtractTextPlugin("bundle.css")
+ ]
+```
+
+* public/index.html 修改index.html文件的引用
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>React Demo</title>
+    <link rel="stylesheet" href="./bundle.css">
+</head>
+<body>
+<div id="app"></div>
+<script src="vendor.js"></script>
+<script src="./bundle.js"></script>
+</body>
+</html>
+```
+
+* vendor文件配置完毕
+
+```
+$ npm run dev
+```
+
+* 浏览器访问localhost:8080，显示js文件的应用和第三方分开
+
+
+
+
+
+
+
