@@ -1,3 +1,11 @@
+/*if (__DEV__) {
+    console.warn('Extra logging');
+}
+// ...
+if (__PRERELEASE__) {
+    showSecretFeature();
+}*/
+
 import React, { Component } from 'react';
 //import './Button.less';
 

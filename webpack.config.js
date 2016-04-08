@@ -2,6 +2,15 @@ var path = require('path');
 var webpack = require('webpack');
 //css单独加载
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
+//9.html统一产出
+var HtmlWebpackPlugin=require("html-webpack-plugin");
+var publicPath = path.resolve(__dirname, 'public');
+// definePlugin 会把定义的string 变量插入到Js代码中。
+var definePlugin = new webpack.DefinePlugin({
+    __DEV__: JSON.stringify(JSON.parse(process.env.BUILD_DEV || 'true')),
+    __PRERELEASE__: JSON.stringify(JSON.parse(process.env.BUILD_PRERELEASE || 'false'))
+});
+
 
 module.exports = {
     //最基本的
@@ -26,9 +35,15 @@ module.exports = {
         ],
         vendor: ['react', 'react-dom']
     },
-    output: {
+    //基本的
+    /*output: {
         path: path.resolve(__dirname, 'public'),
         filename: 'bundle.js'
+    },*/
+    //加hash
+    output: {
+        path: publicPath,
+        filename: '[name].js?[hash]'
     },
     resolve: {
         extension: ['', '.js', '.jsx', '.json']
@@ -73,7 +88,19 @@ module.exports = {
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NoErrorsPlugin(),
-        new webpack.optimize.CommonsChunkPlugin('vendor', 'vendor.js'),
-        new ExtractTextPlugin("bundle.css")
-        ]
+        //new webpack.optimize.CommonsChunkPlugin('vendor', 'vendor.js'),
+        new webpack.optimize.CommonsChunkPlugin('vendor', 'vendor.js?[hash]'),
+        //new ExtractTextPlugin("bundle.css"),
+        new ExtractTextPlugin("[name].css?[hash]", {
+            allChunks: true,
+            disable: false
+        }),
+        new HtmlWebpackPlugin({
+            title: 'mq-react',
+            template: './app/index.html'
+        }),
+        definePlugin
+        ],
+    //8.调试工具
+    devtool: 'cheap-module-source-map'
     };
